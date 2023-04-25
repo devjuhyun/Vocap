@@ -10,7 +10,7 @@ import RealmSwift
 
 class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     //MARK: - Properties
-    var vocabularies: Results<Vocabulary>?
+    var vocabularies: List<Vocabulary>?
     var filteredVocabularies: Results<Vocabulary>?
     let realm = try! Realm()
     var textField: UITextField!
@@ -57,7 +57,8 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         searchController.searchBar.placeholder = "Search words"
         searchController.searchResultsUpdater = self
         searchController.searchBar.autocapitalizationType = .none
-        
+        navigationItem.title = selectedCategory?.name
+
     }
     
     //MARK: - IBActions
@@ -80,10 +81,11 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     //MARK: - Add New Vocabulary
     func addNewVocab() {
         let newVocabulary = Vocabulary()
+        newVocabulary.dateCreated = Date()
         saveVocabularies(vocabulary: newVocabulary)
         tableView.reloadData()
         
-        let indexPath = IndexPath(row: self.vocabularies!.count-1, section: 0)
+        let indexPath = IndexPath(row: vocabularies!.count-1, section: 0)
         self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -212,7 +214,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     func saveVocabularies(vocabulary: Vocabulary) {
         do {
             try realm.write {
-                realm.add(vocabulary)
+                selectedCategory?.vocabs.append(vocabulary)
             }
         } catch {
             print("Error saving notes, \(error)")
@@ -222,7 +224,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     }
     
     func loadVocabularies() {
-        vocabularies = realm.objects(Vocabulary.self)
+        vocabularies = selectedCategory?.vocabs
         
         tableView.reloadData()
     }
@@ -230,7 +232,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     func deleteVocabularies(at indexPath: Int) {
         if let vocabulary = vocabularies?[indexPath] {
             do {
-                try self.realm.write {
+                try realm.write {
                     self.realm.delete(vocabulary)
                 }
             } catch {
@@ -282,35 +284,15 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         setBarButton(isEditing: true)
         
-        if let cell = textField.superview?.superview as? VocabularyCell {
-            if textField == cell.vocabTextField {
-                print("begin editing")
-            } else if textField == cell.meaningTextField {
-                print("begin editing")
-            }
-        }
+        // if let cell = textField.superview?.superview as? VocabularyCell
+            
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         setBarButton(isEditing: false)
-        if let cell = textField.superview?.superview as? VocabularyCell {
-            if textField == cell.vocabTextField {
-                print("end editing")
-            } else if textField == cell.meaningTextField {
-                print("end editing")
-            }
-        }
     }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        if let cell = textField.superview?.superview as? VocabularyCell {
-            if cell.vocabTextField.text == ""  {
-                print("end editing")
-            } else if textField == cell.meaningTextField {
-                print("end editing")
-            }
-        }
-        
         return true
     }
     

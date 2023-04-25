@@ -11,5 +11,5 @@ import RealmSwift
 class Category: Object {
     @Persisted var name: String = ""
     
-    @Persisted var vocabularies = List<Vocabulary>()
+    @Persisted var vocabs: List<Vocabulary>
 }

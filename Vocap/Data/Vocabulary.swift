@@ -13,7 +13,6 @@ class Vocabulary: Object {
     @Persisted var meaning: String = ""
     @Persisted var example: String = ""
     @Persisted var wordClass: String = ""
-    
-    let parentCategory = LinkingObjects(fromType: Category.self, property: "vocabularies")
+    @Persisted var dateCreated: Date?
 }
 

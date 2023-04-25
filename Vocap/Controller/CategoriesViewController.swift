@@ -18,32 +18,20 @@ class CategoriesViewController: UITableViewController {
     @IBOutlet weak var addBtn: UIBarButtonItem!
     
     
-    //MARK: - View Life Cycler
+    //MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
+        
+        tableView.rowHeight = 70
     }
     
     //MARK: - IBActions
     @IBAction func addBtnPressed(_ sender: UIBarButtonItem) {
-        var textField = UITextField()
-        let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
+        presentAlert(button: "add", title: "새 카테고리")
+//        tableView.allowsMultipleSelectionDuringEditing = true
+//        tableView.setEditing(true, animated: true)
         
-        let action = UIAlertAction(title: "Add", style: .default) { UIAlertAction in
-            let category = Category()
-            category.name = textField.text!
-            
-            self.saveCategories(category: category)
-        }
-        
-        alert.addTextField { UITextField in
-            textField = UITextField
-            textField.placeholder = "Create New Category"
-        }
-        
-        alert.addAction(action)
-        
-        present(alert, animated: true)
     }
     
     //MARK: - Table View Delegate Methods
@@ -54,21 +42,31 @@ class CategoriesViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
+        cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+        
         cell.textLabel?.text = categories?[indexPath.row].name
         
         return cell
     }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let delete = UIContextualAction(style: .normal, title: nil) { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
+        let delete = UIContextualAction(style: .normal, title: "delete") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
             self.deleteCategories(at: indexPath.row)
+            success(true)
+        }
+        let rename = UIContextualAction(style: .normal, title: nil) { ( UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
+            self.presentAlert(button: "edit", title: "카테고리 이름 변경", index: indexPath.row)
             success(true)
         }
         
         delete.backgroundColor = .red
         delete.image = UIImage(systemName: "trash.fill")
         
-        return UISwipeActionsConfiguration(actions:[delete])
+        rename.backgroundColor = .orange
+        rename.image = UIImage(systemName: "pencil")
+        rename.title = "Rename"
+        
+        return UISwipeActionsConfiguration(actions:[delete, rename])
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -103,18 +101,69 @@ class CategoriesViewController: UITableViewController {
     }
     
     func deleteCategories(at indexPath: Int) {
-        if let category = categories?[indexPath] {
-            do {
-                try self.realm.write {
-                    self.realm.delete(category)
+        
+        let alert = UIAlertController(title: nil, message: "카테고리 속 단어가 모두 삭제됩니다.", preferredStyle: .actionSheet)
+        
+        let action = UIAlertAction(title: "카테고리 삭제", style: .default, handler: { UIAlertAction in
+            if let category = self.categories?[indexPath] {
+                do {
+                    try self.realm.write {
+                        self.realm.delete(category)
+                    }
+                } catch {
+                    print("Error deleting categories, \(error)")
                 }
-            } catch {
-                print("Error deleting categories, \(error)")
+                
+                self.tableView.reloadData()
             }
+        })
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler:{ (UIAlertAction)in
+                
+        }))
+        
+        action.setValue(UIColor.systemRed, forKey: "titleTextColor")
+        
+        alert.addAction(action)
+                
+        present(alert, animated: true)
+        
+    }
+    
+    //
+    func presentAlert(button: String, title: String, index: Int = 0) {
+        var textField = UITextField()
+        
+        let alert = UIAlertController(title: title, message: "", preferredStyle: .alert)
+        
+        let save = UIAlertAction(title: "확인", style: .default) { UIAlertAction in
             
-            tableView.reloadData()
+            if button == "add" {
+                let category = Category()
+                category.name = textField.text!
+                
+                self.saveCategories(category: category)
+            } else if button == "edit" {
+                try! self.realm.write {
+                    self.categories?[index].name = textField.text!
+                }
+                self.tableView.reloadData()
+            }
         }
         
+        let cancel = UIAlertAction(title: "취소", style: .cancel) { UIAlertAction in
+            
+        }
+        
+        alert.addTextField { UITextField in
+            textField = UITextField
+            textField.placeholder = "Name"
+        }
+        
+        alert.addAction(save)
+        alert.addAction(cancel)
+        
+        present(alert, animated: true)
     }
     
 }
