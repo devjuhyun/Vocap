@@ -12,7 +12,7 @@ class CategoriesViewController: UITableViewController {
     
     //MARK: - Properties
     var categories: Results<Category>?
-    var realm = try! Realm()
+    let realm = try! Realm()
     
     //MARK: - IBOutlets
     @IBOutlet weak var addBtn: UIBarButtonItem!
@@ -24,14 +24,12 @@ class CategoriesViewController: UITableViewController {
         loadCategories()
         
         tableView.rowHeight = 70
+        tableView.backgroundColor = UIColor.systemGroupedBackground
     }
-    
+        
     //MARK: - IBActions
     @IBAction func addBtnPressed(_ sender: UIBarButtonItem) {
         presentAlert(button: "add", title: "새 카테고리")
-//        tableView.allowsMultipleSelectionDuringEditing = true
-//        tableView.setEditing(true, animated: true)
-        
     }
     
     //MARK: - Table View Delegate Methods
@@ -55,7 +53,10 @@ class CategoriesViewController: UITableViewController {
             success(true)
         }
         let rename = UIContextualAction(style: .normal, title: nil) { ( UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
-            self.presentAlert(button: "edit", title: "카테고리 이름 변경", index: indexPath.row)
+            if let category = self.categories?[indexPath.row] {
+                self.presentAlert(button: "edit", title: "카테고리 이름 변경", index: indexPath.row, text: category.name)
+            }
+            
             success(true)
         }
         
@@ -130,8 +131,8 @@ class CategoriesViewController: UITableViewController {
         
     }
     
-    //
-    func presentAlert(button: String, title: String, index: Int = 0) {
+    
+    func presentAlert(button: String, title: String, index: Int = 0, text: String = "") {
         var textField = UITextField()
         
         let alert = UIAlertController(title: title, message: "", preferredStyle: .alert)
@@ -158,6 +159,7 @@ class CategoriesViewController: UITableViewController {
         alert.addTextField { UITextField in
             textField = UITextField
             textField.placeholder = "Name"
+            textField.text = text
         }
         
         alert.addAction(save)

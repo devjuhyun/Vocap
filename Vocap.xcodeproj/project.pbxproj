@@ -13,6 +13,7 @@
 		6BAEECF129D56ACA00106C91 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BAEECF029D56ACA00106C91 /* DetailViewController.swift */; };
 		6BBD802B29F1225A00A05972 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 6BBD802A29F1225A00A05972 /* Realm */; };
 		6BBD802D29F1225A00A05972 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 6BBD802C29F1225A00A05972 /* RealmSwift */; };
+		6BBFE28E29FF7D72004545E4 /* SelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BBFE28D29FF7D72004545E4 /* SelectionViewController.swift */; };
 		6BCBA73D29E65BA30096DF2D /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCBA73C29E65BA30096DF2D /* Category.swift */; };
 		6BCBA73F29E65CDD0096DF2D /* CategoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCBA73E29E65CDD0096DF2D /* CategoriesViewController.swift */; };
 		6BDB85AE29B1D07E0047C70C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDB85AD29B1D07E0047C70C /* AppDelegate.swift */; };
@@ -28,6 +29,7 @@
 		6B8C921529B1DD13007DFF0F /* Vocabulary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vocabulary.swift; sourceTree = "<group>"; };
 		6B8C921829B70483007DFF0F /* VocabularyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyCell.swift; sourceTree = "<group>"; };
 		6BAEECF029D56ACA00106C91 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
+		6BBFE28D29FF7D72004545E4 /* SelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionViewController.swift; sourceTree = "<group>"; };
 		6BCBA73C29E65BA30096DF2D /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		6BCBA73E29E65CDD0096DF2D /* CategoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesViewController.swift; sourceTree = "<group>"; };
 		6BDB85AA29B1D07E0047C70C /* Vocap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vocap.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -58,6 +60,7 @@
 			children = (
 				6BCBA73E29E65CDD0096DF2D /* CategoriesViewController.swift */,
 				6BDB85B129B1D07E0047C70C /* VocabulariesViewController.swift */,
+				6BBFE28D29FF7D72004545E4 /* SelectionViewController.swift */,
 				6BAEECF029D56ACA00106C91 /* DetailViewController.swift */,
 			);
 			path = Controller;
@@ -73,13 +76,13 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		6B8C921729B1DD16007DFF0F /* Data */ = {
+		6B8C921729B1DD16007DFF0F /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				6BCBA73C29E65BA30096DF2D /* Category.swift */,
 				6B8C921529B1DD13007DFF0F /* Vocabulary.swift */,
 			);
-			path = Data;
+			path = Model;
 			sourceTree = "<group>";
 		};
 		6BDB85A129B1D07E0047C70C = {
@@ -103,7 +106,7 @@
 			children = (
 				6BDB85AD29B1D07E0047C70C /* AppDelegate.swift */,
 				6BDB85AF29B1D07E0047C70C /* SceneDelegate.swift */,
-				6B8C921729B1DD16007DFF0F /* Data */,
+				6B8C921729B1DD16007DFF0F /* Model */,
 				6B07394629B1D6B30089DD3B /* View */,
 				6B07394529B1D6710089DD3B /* Controller */,
 				6BDB85B629B1D07F0047C70C /* Assets.xcassets */,
@@ -196,6 +199,7 @@
 				6BCBA73F29E65CDD0096DF2D /* CategoriesViewController.swift in Sources */,
 				6BDB85B029B1D07E0047C70C /* SceneDelegate.swift in Sources */,
 				6B8C921929B70483007DFF0F /* VocabularyCell.swift in Sources */,
+				6BBFE28E29FF7D72004545E4 /* SelectionViewController.swift in Sources */,
 				6B8C921629B1DD13007DFF0F /* Vocabulary.swift in Sources */,
 				6B315AC929D58A6F00A279A0 /* DetailCell.swift in Sources */,
 				6BAEECF129D56ACA00106C91 /* DetailViewController.swift in Sources */,

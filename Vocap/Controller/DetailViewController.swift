@@ -38,7 +38,7 @@ class DetailViewController: UITableViewController {
         super.viewWillDisappear(animated)
         
         if let navVC = presentingViewController as? UINavigationController {
-            if let firstVC = navVC.viewControllers.first as? VocabulariesViewController {
+            if let firstVC = navVC.viewControllers[1] as? VocabulariesViewController {
                     firstVC.tableView.reloadData()
             }
         }
@@ -73,15 +73,15 @@ class DetailViewController: UITableViewController {
         
         if let vocabulary = selectedVocabulary {
             if indexPath.row == 0 {
+                cell.button.setTitle("의미", for: .normal)
                 cell.textView.text = vocabulary.meaning
-                cell.button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
-                cell.button.setTitle(vocabulary.wordClass, for: .normal)
+//                cell.button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
 
             } else if indexPath.row == 1 {
                 
                 cell.button.setTitle("예문", for: .normal)
                 cell.textView.text = vocabulary.example
-                
+
                 
                 if cell.textView.text.isEmpty {
                     cell.textView.text = "Add your example"
@@ -95,23 +95,23 @@ class DetailViewController: UITableViewController {
         return cell
     }
     
-    @objc func buttonTapped(_ sender: UIButton) {
-        let btntitles = ["동사", "명사", "형용사", "부사"]
-        
-        if i < 3 {
-            i += 1
-        } else {
-            i = 0
-        }
-        
-        sender.setTitle(btntitles[i], for: .normal)
-        
-        guard let vocabulary = selectedVocabulary else { fatalError() }
-
-        try! realm.write {
-            vocabulary.wordClass = btntitles[i]
-        }
-    }
+//    @objc func buttonTapped(_ sender: UIButton) {
+//        let btntitles = ["동사", "명사", "형용사", "부사"]
+//
+//        if i < 3 {
+//            i += 1
+//        } else {
+//            i = 0
+//        }
+//
+//        sender.setTitle(btntitles[i], for: .normal)
+//
+//        guard let vocabulary = selectedVocabulary else { fatalError() }
+//
+//        try! realm.write {
+//            vocabulary.wordClass = btntitles[i]
+//        }
+//    }
     
     //MARK: - Data Manipulation Methods
     
@@ -132,7 +132,7 @@ class DetailViewController: UITableViewController {
 //MARK: - TextView Delegate Methods
 extension DetailViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        UIView.setAnimationsEnabled(false)
+        UIView.setAnimationsEnabled(false) 
         tableView.beginUpdates()
         tableView.endUpdates()
         UIView.setAnimationsEnabled(true)

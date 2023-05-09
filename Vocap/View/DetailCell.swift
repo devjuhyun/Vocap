@@ -17,7 +17,7 @@ class DetailCell: UITableViewCell {
         
         button = UIButton()
         button.contentHorizontalAlignment = .left
-        button.setTitle("click", for: .normal)
+        button.setTitle("", for: .normal)
         button.setTitleColor(.label, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
         button.translatesAutoresizingMaskIntoConstraints = false

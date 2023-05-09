@@ -10,9 +10,13 @@ import RealmSwift
 
 class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     //MARK: - Properties
-    var vocabularies: List<Vocabulary>?
-    var filteredVocabularies: Results<Vocabulary>?
     let realm = try! Realm()
+    var vocabularies: Results<Vocabulary>?
+    var filteredVocabularies: Results<Vocabulary>?
+    var selectedVocabularies: [Vocabulary]?
+    var indexs: [Int]? = []
+    
+    var label = UILabel(frame: .zero)
     var textField: UITextField!
     var searchController = UISearchController(searchResultsController: nil)
     var selectedCategory: Category? {
@@ -32,10 +36,14 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     //MARK: - IBOutlets
     @IBOutlet weak var addBtn: UIBarButtonItem!
     @IBOutlet weak var doneBtn: UIBarButtonItem!
+    @IBOutlet weak var selectBtn: UIBarButtonItem!
+    @IBOutlet weak var moveBtn: UIBarButtonItem!
+    @IBOutlet weak var deleteBtn: UIBarButtonItem!
     
     //MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        createLableInToolbar()
         
         // read database
         loadVocabularies()
@@ -43,13 +51,17 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         // table view configuration
         tableView.rowHeight = 70.0
         tableView.backgroundColor = UIColor.systemGroupedBackground
+        tableView.allowsSelection = false
         
         // navigation properties
         doneBtn.isHidden = true
+        moveBtn.isHidden = true
+        deleteBtn.isHidden = true
         
         // detecting empty area in UITableView when it is tapped
         let tap = UITapGestureRecognizer(target: self, action: #selector(tableTapped))
         self.tableView.addGestureRecognizer(tap)
+        tap.cancelsTouchesInView = false // 롱터치? 해야 셀 선택되는거 막아줌
         
         // configure searchbar
         navigationItem.searchController = searchController
@@ -61,12 +73,43 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
 
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        deleteEmptyCell()
+    }
+    
+    //MARK: - functions
+    func createLableInToolbar() {
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
+        let rightSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
+        label.text = "0 Words"
+        label.font = UIFont.systemFont(ofSize: 13)
+        label.textAlignment = .center
+        label.textColor = .label
+        label.adjustsFontSizeToFitWidth = true
+        let customBarButton = UIBarButtonItem(customView: label)
+        setToolbarItems([moveBtn, space, customBarButton, rightSpace, deleteBtn], animated: false)
+    }
+    
+    
     //MARK: - IBActions
     @IBAction func addBtnTapped(_ sender: Any) {
         addNewVocab()
     }
     
     @IBAction func doneBtnTapped(_ sender: Any) {
+        deleteEmptyCell()
+        
+        if tableView.isEditing {
+            setBarButton()
+            tableView.setEditing(false, animated: true)
+        }
+        
+        self.view.endEditing(true)
+        tableView.reloadData()
+        
+    }
+    
+    func deleteEmptyCell() {
         let indexPath = IndexPath(row: vocabularies!.count-1, section: 0)
         
         if let cell = tableView.cellForRow(at: indexPath) as? VocabularyCell {
@@ -74,12 +117,97 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
                 deleteVocabularies(at: indexPath.row)
             }
         }
+    }
+    
+    @IBAction func selectBtnTapped(_ sender: UIBarButtonItem) {
+        if tableView.cellForRow(at: IndexPath(row: 0, section: 0)) == nil {
+            return
+        }
+        
+        tableView.allowsSelectionDuringEditing = true
+        tableView.allowsMultipleSelectionDuringEditing = true
+        tableView.setEditing(true, animated: true)
+        label.text = "0 Words"
+        setBarButton()
+    }
+    
+    @IBAction func moveBtnTapped(_ sender: UIBarButtonItem) {
+        getSelectedVocabs()
+        performSegue(withIdentifier: "goToSelection", sender: self)
+    }
+    
+    @IBAction func deleteBtnTapped(_ sender: UIBarButtonItem) {
+        getSelectedVocabs()
+        
+        if let selectedVocabularies {
+            do {
+                try realm.write {
+                    realm.delete(selectedVocabularies)
+                }
+            } catch {
+                ("Error deleting vocabs: \(error.localizedDescription)")
+            }
+            tableView.reloadData()
+        }
+        
+        
+        if tableView.isEditing {
+            setBarButton()
+            tableView.setEditing(false, animated: true)
+        }
         
         self.view.endEditing(true)
+
     }
+    
+    
+    func getSelectedVocabs() {
+        if let selectedRows = tableView.indexPathsForSelectedRows {
+            let indexs = selectedRows.map{ $0[1] }.sorted()
+            if isFiltering {
+                if let filteredVocabularies {
+                    selectedVocabularies = indexs.map{ filteredVocabularies[$0] }
+                }
+            } else {
+                if let vocabularies {
+                    selectedVocabularies = indexs.map{ vocabularies[$0] }
+                }
+            }
+        }
+        
+        getIndexs()
+    }
+    
+    func getIndexs() {
+        indexs = []
+        
+        if let selectedVocabularies {
+            for vocab in selectedVocabularies {
+                if let index = selectedCategory?.vocabs.index(of: vocab) {
+                    indexs?.append(index)
+                }
+            }
+            indexs?.sort()
+        }
+    }
+    
+    
+    
+    
     
     //MARK: - Add New Vocabulary
     func addNewVocab() {
+        deleteEmptyCell()
+        
+        if searchController.isActive {
+            searchController.isActive = false
+        }
+        
+        
+        if tableView.isEditing {
+            return
+        }
+        
         let newVocabulary = Vocabulary()
         newVocabulary.dateCreated = Date()
         saveVocabularies(vocabulary: newVocabulary)
@@ -95,16 +223,15 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         }
     }
     
-    func setBarButton(isEditing: Bool) {
+    func setBarButton() {
+        addBtn.isHidden = !addBtn.isHidden
+        doneBtn.isHidden = !doneBtn.isHidden
+        selectBtn.isHidden = !selectBtn.isHidden
         
-        if isEditing {
-            addBtn.isHidden = true
-            doneBtn.isHidden = false
-        } else {
-            addBtn.isHidden = false
-            doneBtn.isHidden = true
+        if tableView.isEditing {
+            deleteBtn.isHidden = !deleteBtn.isHidden
+            moveBtn.isHidden = !moveBtn.isHidden
         }
-        
     }
     
     //MARK: - TableView Delegate Methods
@@ -113,14 +240,8 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         let path = self.tableView.indexPathForRow(at: location)
         
         if path == nil {
-            let indexPath = IndexPath(row: vocabularies!.count-1, section: 0)
-            
-            if let cell = tableView.cellForRow(at: indexPath) as? VocabularyCell {
-                if cell.vocabTextField.text == "" || cell.meaningTextField.text == "" {
-                    deleteVocabularies(at: indexPath.row)
-                } else {
-                    addNewVocab()
-                }
+            if addBtn.isHidden {
+                deleteEmptyCell()
             } else {
                 addNewVocab()
             }
@@ -128,6 +249,8 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        label.text = "0 Words"
+        
         return isFiltering ? filteredVocabularies?.count ?? 1 : vocabularies?.count ?? 1
     }
     
@@ -137,10 +260,12 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         
         if isFiltering {
             if let filteredVocabulary = filteredVocabularies?[indexPath.row] {
+                label.text = "\(filteredVocabularies?.count ?? 0) Words"
                 cell.vocabTextField.text = filteredVocabulary.vocab
                 cell.meaningTextField.text = filteredVocabulary.meaning
             }
         } else {
+            label.text = "\(vocabularies?.count ?? 0) Words"
             cell.vocabTextField.text = vocabulary.vocab
             cell.meaningTextField.text = vocabulary.meaning
         }
@@ -183,32 +308,58 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         return UISwipeActionsConfiguration(actions:[delete])
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("ddd")
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-    }
-    
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         guard let cell = tableView.cellForRow(at: indexPath) as? VocabularyCell else { fatalError() }
-
+        
         if cell.vocabTextField.text != "" {
             performSegue(withIdentifier: "goToDetail", sender: indexPath.row)
         }
-        
-//        deleteVocabularies(at: indexPath.row)
+    
+        //        deleteVocabularies(at: indexPath.row)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        guard let navigationController = segue.destination as? UINavigationController else { fatalError() }
+        guard let nextNav = segue.destination as? UINavigationController else { fatalError() }
         
-        guard let detailViewController = navigationController.topViewController as? DetailViewController else { fatalError() }
+        if let detailViewController = nextNav.topViewController as? DetailViewController {
+            if let index = sender as? Int {
+                detailViewController.selectedVocabulary = vocabularies?[index]
+            }
+        }
+                
+        if let selectionVC = nextNav.topViewController as? SelectionViewController {
+            selectionVC.selectedVocabs = selectedVocabularies
+            selectionVC.selectedCategory = selectedCategory
+            selectionVC.indexs = indexs
+        }
         
-        if let index = sender as? Int {
-            detailViewController.selectedVocabulary = vocabularies?[index]
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        changeToolbarItems()
+    }
+    
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        changeToolbarItems()
+    }
+
+    func changeToolbarItems() {
+        let a = tableView.indexPathsForSelectedRows
+        
+        moveBtn.isEnabled = true
+        deleteBtn.isEnabled = true
+        
+        if a == nil {
+            moveBtn.isEnabled = false
+            deleteBtn.isEnabled = false
+            label.text = "0 Words"
+        } else {
+            label.text = "\(a!.count) Words"
         }
     }
+    
+    
     
     //MARK: - Data Manipulation Methods
     func saveVocabularies(vocabulary: Vocabulary) {
@@ -224,7 +375,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     }
     
     func loadVocabularies() {
-        vocabularies = selectedCategory?.vocabs
+        vocabularies = selectedCategory?.vocabs.sorted(byKeyPath: "dateCreated", ascending: true)
         
         tableView.reloadData()
     }
@@ -281,21 +432,19 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        setBarButton(isEditing: true)
-        
-        // if let cell = textField.superview?.superview as? VocabularyCell
-            
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        setBarButton(isEditing: false)
-    }
-    
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        setBarButton()
         return true
     }
     
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        if tableView.isEditing {
+            return false
+        }
+        
+        setBarButton()
+        return true
+    }
 }
 
 extension VocabulariesViewController: UISearchResultsUpdating {
