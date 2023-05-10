@@ -138,17 +138,18 @@ class CategoriesViewController: UITableViewController {
         let alert = UIAlertController(title: title, message: "", preferredStyle: .alert)
         
         let save = UIAlertAction(title: "확인", style: .default) { UIAlertAction in
-            
-            if button == "add" {
-                let category = Category()
-                category.name = textField.text!
-                
-                self.saveCategories(category: category)
-            } else if button == "edit" {
-                try! self.realm.write {
-                    self.categories?[index].name = textField.text!
+            if textField.text != "" {
+                if button == "add" {
+                    let category = Category()
+                    category.name = textField.text!
+                    
+                    self.saveCategories(category: category)
+                } else if button == "edit" {
+                    try! self.realm.write {
+                        self.categories?[index].name = textField.text!
+                    }
+                    self.tableView.reloadData()
                 }
-                self.tableView.reloadData()
             }
         }
         

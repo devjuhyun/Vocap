@@ -36,6 +36,7 @@ class SelectionViewController: UITableViewController {
             }
             if let secondVC = navVC.viewControllers[1] as? VocabulariesViewController {
                 secondVC.tableView.reloadData()
+                secondVC.doneBtnTapped(secondVC.doneBtn!)
             }
         }
     }
@@ -59,6 +60,11 @@ class SelectionViewController: UITableViewController {
         
         cell.textLabel?.text = categories?[indexPath.row].name
         
+        if cell.textLabel?.text == selectedCategory?.name {
+            cell.textLabel?.textColor = .darkGray
+            cell.selectionStyle = .none
+        }
+        
         return cell
     }
     
@@ -67,21 +73,26 @@ class SelectionViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        try! realm.write {
-            if let indexs = indexs {
-                let indexSet = IndexSet(indexs)
-                selectedCategory?.vocabs.remove(atOffsets: indexSet)
-            }
-            
-            if let selectedVocabs {
-                categories?[indexPath.row].vocabs.append(objectsIn: selectedVocabs)
+        
+        if let cell = tableView.cellForRow(at: indexPath) {
+            if cell.textLabel?.textColor != .darkGray {
+                try! realm.write {
+                    if let indexs = indexs {
+                        let indexSet = IndexSet(indexs)
+                        selectedCategory?.vocabs.remove(atOffsets: indexSet)
+                    }
+                    
+                    if let selectedVocabs {
+                        categories?[indexPath.row].vocabs.append(objectsIn: selectedVocabs)
+                    }
+                }
+                cell.accessoryType = .checkmark
+                        
+                navigationController?.dismiss(animated: true)
+
             }
         }
-                
-        navigationController?.dismiss(animated: true)
-        
     }
-    
     
     
     //MARK: - Data Manipulation Methods

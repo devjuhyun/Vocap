@@ -42,6 +42,8 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     
     //MARK: - View Life Cycle
     override func viewDidLoad() {
+        print(Realm.Configuration.defaultConfiguration.fileURL)
+        
         super.viewDidLoad()
         createLableInToolbar()
         
@@ -52,6 +54,8 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         tableView.rowHeight = 70.0
         tableView.backgroundColor = UIColor.systemGroupedBackground
         tableView.allowsSelection = false
+        tableView.allowsSelectionDuringEditing = true
+        tableView.allowsMultipleSelectionDuringEditing = true
         
         // navigation properties
         doneBtn.isHidden = true
@@ -81,18 +85,31 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     func createLableInToolbar() {
         let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
         let rightSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
-        label.text = "0 Words"
+        label.text = "No Words"
         label.font = UIFont.systemFont(ofSize: 13)
         label.textAlignment = .center
         label.textColor = .label
         label.adjustsFontSizeToFitWidth = true
+        label.frame.size.width = 100
         let customBarButton = UIBarButtonItem(customView: label)
         setToolbarItems([moveBtn, space, customBarButton, rightSpace, deleteBtn], animated: false)
+    }
+    
+    func getTextOfNumber(_ number: Int) -> String {
+        if number < 2 {
+            return "\(number) Word"
+        } else {
+            return "\(number) Words"
+        }
     }
     
     
     //MARK: - IBActions
     @IBAction func addBtnTapped(_ sender: Any) {
+        if tableView.isEditing {
+            tableView.setEditing(false, animated: true)
+        }
+        
         addNewVocab()
     }
     
@@ -113,21 +130,23 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         let indexPath = IndexPath(row: vocabularies!.count-1, section: 0)
         
         if let cell = tableView.cellForRow(at: indexPath) as? VocabularyCell {
-            if cell.vocabTextField.text == "" || cell.meaningTextField.text == "" {
+            if cell.vocabTextField.text == "" {
                 deleteVocabularies(at: indexPath.row)
             }
         }
     }
     
     @IBAction func selectBtnTapped(_ sender: UIBarButtonItem) {
-        if tableView.cellForRow(at: IndexPath(row: 0, section: 0)) == nil {
+        if label.text == "No Words" {
             return
         }
         
-        tableView.allowsSelectionDuringEditing = true
-        tableView.allowsMultipleSelectionDuringEditing = true
+        if tableView.isEditing {
+            tableView.setEditing(false, animated: true)
+        }
+        
         tableView.setEditing(true, animated: true)
-        label.text = "0 Words"
+        label.text = "0 Selected"
         setBarButton()
     }
     
@@ -145,7 +164,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
                     realm.delete(selectedVocabularies)
                 }
             } catch {
-                ("Error deleting vocabs: \(error.localizedDescription)")
+                print("Error deleting vocabs: \(error.localizedDescription)")
             }
             tableView.reloadData()
         }
@@ -162,6 +181,8 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     
     
     func getSelectedVocabs() {
+        selectedVocabularies = []
+        
         if let selectedRows = tableView.indexPathsForSelectedRows {
             let indexs = selectedRows.map{ $0[1] }.sorted()
             if isFiltering {
@@ -190,13 +211,10 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
             indexs?.sort()
         }
     }
-    
-    
-    
-    
-    
+        
     //MARK: - Add New Vocabulary
     func addNewVocab() {
+        // add 버튼 연속으로눌렀을때 여러개 추가되는거 방지
         deleteEmptyCell()
         
         if searchController.isActive {
@@ -214,12 +232,10 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         tableView.reloadData()
         
         let indexPath = IndexPath(row: vocabularies!.count-1, section: 0)
-        self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+        self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if let cell = self.tableView.cellForRow(at: indexPath) as? VocabularyCell {
-                cell.vocabTextField.becomeFirstResponder()
-            }
+        if let cell = self.tableView.cellForRow(at: indexPath) as? VocabularyCell {
+            cell.vocabTextField.becomeFirstResponder()
         }
     }
     
@@ -249,7 +265,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        label.text = "0 Words"
+        label.text = "No Words"
         
         return isFiltering ? filteredVocabularies?.count ?? 1 : vocabularies?.count ?? 1
     }
@@ -260,14 +276,19 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         
         if isFiltering {
             if let filteredVocabulary = filteredVocabularies?[indexPath.row] {
-                label.text = "\(filteredVocabularies?.count ?? 0) Words"
+                label.text = getTextOfNumber(filteredVocabularies?.count ?? 0)
                 cell.vocabTextField.text = filteredVocabulary.vocab
                 cell.meaningTextField.text = filteredVocabulary.meaning
             }
         } else {
-            label.text = "\(vocabularies?.count ?? 0) Words"
+            label.text = getTextOfNumber(vocabularies?.count ?? 0)
             cell.vocabTextField.text = vocabulary.vocab
             cell.meaningTextField.text = vocabulary.meaning
+        }
+        
+        // 체크포인트 - 셀 스와이핑 했을 때 스크롤 하면 단어 0개로 표시되는거 고쳐야됨
+        if tableView.isEditing {
+            changeToolbarItems()
         }
         
         cell.vocabTextField.autocapitalizationType = .none
@@ -280,7 +301,6 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         
         
         cell.vocabCallback = { str in
-            // update data array when text in cell is edited
             try! self.realm.write {
                 vocabulary.vocab = str
             }
@@ -308,14 +328,14 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         return UISwipeActionsConfiguration(actions:[delete])
     }
     
+    
+    
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         guard let cell = tableView.cellForRow(at: indexPath) as? VocabularyCell else { fatalError() }
         
         if cell.vocabTextField.text != "" {
             performSegue(withIdentifier: "goToDetail", sender: indexPath.row)
         }
-    
-        //        deleteVocabularies(at: indexPath.row)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -353,13 +373,11 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         if a == nil {
             moveBtn.isEnabled = false
             deleteBtn.isEnabled = false
-            label.text = "0 Words"
+            label.text = "0 Selected"
         } else {
-            label.text = "\(a!.count) Words"
+            label.text = "\(a!.count) Selected"
         }
     }
-    
-    
     
     //MARK: - Data Manipulation Methods
     func saveVocabularies(vocabulary: Vocabulary) {
@@ -418,13 +436,12 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
                 let nextCell = tableView.cellForRow(at: indexPath) as! VocabularyCell
                 nextCell.vocabTextField.becomeFirstResponder()
             } else {
-                if textField.text == "" {
-                    deleteVocabularies(at: row)
-                } else {
-                    addNewVocab()
-                    let nextCell = tableView.cellForRow(at: indexPath) as! VocabularyCell
-                    nextCell.vocabTextField.becomeFirstResponder()
-                }
+                addNewVocab()
+//                if textField.text == "" {
+//                    deleteVocabularies(at: row)
+//                } else {
+//                    addNewVocab()
+//                }
             }
         }
         

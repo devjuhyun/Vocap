@@ -30,9 +30,10 @@ class DetailViewController: UITableViewController {
         doneBtn.isHidden = true
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(tableTapped))
-        self.tableView.addGestureRecognizer(tap)
-
+        self.tableView.addGestureRecognizer(tap)        
     }
+    
+    
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -132,7 +133,7 @@ class DetailViewController: UITableViewController {
 //MARK: - TextView Delegate Methods
 extension DetailViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        UIView.setAnimationsEnabled(false) 
+        UIView.setAnimationsEnabled(false)
         tableView.beginUpdates()
         tableView.endUpdates()
         UIView.setAnimationsEnabled(true)

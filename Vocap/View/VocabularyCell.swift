@@ -31,7 +31,7 @@ class VocabularyCell: UITableViewCell {
         
 
         meaningTextField.borderStyle = .none
-        meaningTextField.placeholder = "Add definition"
+        meaningTextField.placeholder = "Add Definition"
         meaningTextField.translatesAutoresizingMaskIntoConstraints = false
         meaningTextField.font = UIFont.systemFont(ofSize: 15)
 
