@@ -57,6 +57,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         tableView.allowsSelection = false
         tableView.allowsSelectionDuringEditing = true
         tableView.allowsMultipleSelectionDuringEditing = true
+        scrollToBottom()
         
         // navigation properties
         doneBtn.isHidden = true
@@ -78,7 +79,16 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         navigationItem.title = selectedCategory?.name
 
     }
-    
+        
+    func scrollToBottom(){
+        DispatchQueue.main.async {
+            let indexPath = IndexPath(row: IndexPath(row: self.tableView.numberOfRows(inSection: 0)-1, section: 0).row, section: 0)
+            if indexPath.row > 0 {
+                self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            }
+        }
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         deleteEmptyCell()
     }

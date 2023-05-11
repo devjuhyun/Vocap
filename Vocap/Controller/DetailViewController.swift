@@ -76,6 +76,13 @@ class DetailViewController: UITableViewController {
             if indexPath.row == 0 {
                 cell.button.setTitle("의미", for: .normal)
                 cell.textView.text = vocabulary.meaning
+                
+                if cell.textView.text.isEmpty {
+                    cell.textView.text = "Add Definition"
+                    cell.textView.textColor = UIColor.lightGray
+                } else if cell.textView.text == "Add Definition" {
+                    cell.textView.textColor = UIColor.lightGray
+                }
 //                cell.button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
 
             } else if indexPath.row == 1 {
@@ -159,15 +166,17 @@ extension DetailViewController: UITextViewDelegate {
                 try! realm.write {
                     vocabulary.meaning = textView.text
                 }
+                if textView.text.isEmpty {
+                    textView.text = "Add Definition"
+                    textView.textColor = UIColor.lightGray
+                }
             } else if indexPath.row == 1 {
-                
+                try! realm.write {
+                    vocabulary.example = textView.text
+                }
                 if textView.text.isEmpty {
                     textView.text = "Add your example"
                     textView.textColor = UIColor.lightGray
-                }
-                
-                try! realm.write {
-                    vocabulary.example = textView.text
                 }
             }
         }

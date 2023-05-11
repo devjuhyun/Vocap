@@ -71,17 +71,13 @@ class VocabularyCell: UITableViewCell {
 // 한국어 키보드 https://velog.io/@leeesangheee/TextField-한국어-키보드로-설정하기
 class CustomTextField: UITextField {
 
-    private func getKeyboardLanguage() -> String? {
-        return "ko-KR"
-    }
+    var language:String = "ko-KR"
 
     override var textInputMode: UITextInputMode? {
-        if let language = getKeyboardLanguage() {
             for inputMode in UITextInputMode.activeInputModes {
                 if inputMode.primaryLanguage! == language {
                     return inputMode
                 }
-            }
         }
         return super.textInputMode
     }

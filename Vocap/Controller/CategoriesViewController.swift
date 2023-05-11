@@ -109,6 +109,7 @@ class CategoriesViewController: UITableViewController {
             if let category = self.categories?[indexPath] {
                 do {
                     try self.realm.write {
+                        self.realm.delete(category.vocabs)
                         self.realm.delete(category)
                     }
                 } catch {
