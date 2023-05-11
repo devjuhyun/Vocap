@@ -37,6 +37,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     @IBOutlet weak var addBtn: UIBarButtonItem!
     @IBOutlet weak var doneBtn: UIBarButtonItem!
     @IBOutlet weak var selectBtn: UIBarButtonItem!
+    @IBOutlet weak var selectAllBtn: UIBarButtonItem!
     @IBOutlet weak var moveBtn: UIBarButtonItem!
     @IBOutlet weak var deleteBtn: UIBarButtonItem!
     
@@ -59,6 +60,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         
         // navigation properties
         doneBtn.isHidden = true
+        selectAllBtn.isHidden = true
         moveBtn.isHidden = true
         deleteBtn.isHidden = true
         
@@ -117,6 +119,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         deleteEmptyCell()
         
         if tableView.isEditing {
+            selectBtn.image = UIImage(systemName: "checkmark.circle")
             setBarButton()
             tableView.setEditing(false, animated: true)
         }
@@ -146,8 +149,28 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         }
         
         tableView.setEditing(true, animated: true)
-        label.text = "0 Selected"
+        changeToolbarItems()
         setBarButton()
+    }
+    
+    @IBAction func selectAllTapped(_ sender: UIBarButtonItem) {
+        var indexPaths: [IndexPath] = []
+        
+        for row in 0..<tableView.numberOfRows(inSection: 0) {
+            let indexPath = IndexPath(row: row, section: 0)
+            indexPaths.append(indexPath)
+        }
+        
+        if tableView.indexPathsForSelectedRows?.count == tableView.numberOfRows(inSection: 0) {
+            for indexPath in indexPaths {
+                tableView.deselectRow(at: indexPath, animated: false)
+            }
+        } else {
+            for indexPath in indexPaths {
+                tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+            }
+        }
+        changeToolbarItems()
     }
     
     @IBAction func moveBtnTapped(_ sender: UIBarButtonItem) {
@@ -247,6 +270,7 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
         if tableView.isEditing {
             deleteBtn.isHidden = !deleteBtn.isHidden
             moveBtn.isHidden = !moveBtn.isHidden
+            selectAllBtn.isHidden = !selectAllBtn.isHidden
         }
     }
     
@@ -367,14 +391,13 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     func changeToolbarItems() {
         let a = tableView.indexPathsForSelectedRows
         
-        moveBtn.isEnabled = true
-        deleteBtn.isEnabled = true
-        
         if a == nil {
             moveBtn.isEnabled = false
             deleteBtn.isEnabled = false
             label.text = "0 Selected"
         } else {
+            moveBtn.isEnabled = true
+            deleteBtn.isEnabled = true
             label.text = "\(a!.count) Selected"
         }
     }

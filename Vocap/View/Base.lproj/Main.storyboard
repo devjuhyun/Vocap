@@ -62,6 +62,11 @@
                                     <action selector="doneBtnTapped:" destination="ZQk-n4-99Y" id="zqW-9R-TRU"/>
                                 </connections>
                             </barButtonItem>
+                            <barButtonItem title="Item" image="checkmark.circle.fill" catalog="system" id="Qlx-a1-UD3">
+                                <connections>
+                                    <action selector="selectAllTapped:" destination="ZQk-n4-99Y" id="l4t-QK-EXK"/>
+                                </connections>
+                            </barButtonItem>
                         </rightBarButtonItems>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
@@ -70,6 +75,7 @@
                         <outlet property="deleteBtn" destination="QcD-Ym-8H9" id="9Yh-Tc-nGU"/>
                         <outlet property="doneBtn" destination="fEF-9n-pqb" id="kF1-db-Jx7"/>
                         <outlet property="moveBtn" destination="9hX-yr-OR7" id="4Q4-Qa-xxJ"/>
+                        <outlet property="selectAllBtn" destination="Qlx-a1-UD3" id="zSZ-7P-dwQ"/>
                         <outlet property="selectBtn" destination="Xyy-NC-vSg" id="tft-Cf-Q87"/>
                         <segue destination="kNu-eC-sms" kind="presentation" identifier="goToDetail" id="paw-jK-wW3"/>
                         <segue destination="bFa-q1-YKe" kind="presentation" identifier="goToSelection" id="S0K-01-Qgu"/>
@@ -288,6 +294,7 @@
     </scenes>
     <resources>
         <image name="checkmark.circle" catalog="system" width="128" height="123"/>
+        <image name="checkmark.circle.fill" catalog="system" width="128" height="123"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
