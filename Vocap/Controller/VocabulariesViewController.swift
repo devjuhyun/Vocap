@@ -181,25 +181,36 @@ class VocabulariesViewController: UITableViewController, UITextFieldDelegate {
     @IBAction func deleteBtnTapped(_ sender: UIBarButtonItem) {
         getSelectedVocabs()
         
-        if let selectedVocabularies {
-            do {
-                try realm.write {
-                    realm.delete(selectedVocabularies)
+        let alert = UIAlertController(title: nil, message: "\(selectedVocabularies!.count)개의 단어가 삭제됩니다.", preferredStyle: .actionSheet)
+        
+        let action = UIAlertAction(title: "삭제", style: .default, handler: { [self] UIAlertAction in
+            if let selectedVocabularies {
+                do {
+                    try self.realm.write {
+                        self.realm.delete(selectedVocabularies)
+                    }
+                } catch {
+                    print("Error deleting vocabs: \(error.localizedDescription)")
                 }
-            } catch {
-                print("Error deleting vocabs: \(error.localizedDescription)")
+                self.tableView.reloadData()
             }
-            tableView.reloadData()
-        }
+            
+            
+            if self.tableView.isEditing {
+                self.setBarButton()
+                self.tableView.setEditing(false, animated: true)
+            }
+            
+            self.view.endEditing(true)
+        })
         
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         
-        if tableView.isEditing {
-            setBarButton()
-            tableView.setEditing(false, animated: true)
-        }
+        action.setValue(UIColor.systemRed, forKey: "titleTextColor")
         
-        self.view.endEditing(true)
-
+        alert.addAction(action)
+                
+        present(alert, animated: true)
     }
     
     
