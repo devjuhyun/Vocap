@@ -31,7 +31,7 @@
 * UITextField의 tag 프로퍼티를 이용하여 텍스트 필드에서 return버튼을 눌렀을 때 의미를 입력하는 텍스트 필드로 이동할지, 새로운 단어를 추가할지, 단어 추가를 취소할지를 결정하는 로직 구현
 * Callback을 사용하여 셀의 텍스트 필드에 입력된 텍스트를 받아서 단어 업데이트
 * CustomTextField를 만들어서 단어의 의미를 입력하는 텍스트필드가 first responder가 될시 키보드 언어를 한글로 변경하는 기능 구현
-* Toolbar에현재 단어의 개수를 표시하는 기능 구현
+* Toolbar에 현재 단어의 개수를 표시하는 기능 구현
 
 ### 3. 단어 검색
 ![wordsearch](https://github.com/devjuhyun/Vocap/assets/117050638/de26fd93-1e38-4e73-873e-d277699d9c76)
