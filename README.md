@@ -140,7 +140,7 @@ class CustomTextField: UITextField {
     }
 }
 ```
-* Toolbar에현재 단어의 개수를 표시하는 기능 구현
+* Toolbar에 현재 단어의 개수를 표시하는 기능 구현
 
 ### 3. 단어 검색
 ![wordsearch](https://github.com/devjuhyun/Vocap/assets/117050638/de26fd93-1e38-4e73-873e-d277699d9c76)
