@@ -8,6 +8,7 @@
 * Storyboard
 
 ## 주요 기능
+* 로컬 데이터 저장
 * 카테고리별 단어 관리
 * 배경 화면을 터치하여 단어 생성/수정
 * 의미를 입력할 때 한글 키보드로 자동 변경
@@ -15,7 +16,6 @@
 * 단어 상세 페이지에서 예문 추가
 * 단어 검색
 * 현재 단어/선택된 단어 개수 표시
-* 로컬 데이터 저장
 
 ## 구현 내용
 ### 1. 카테고리 생성/수정/삭제
@@ -93,7 +93,7 @@ override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexP
     /* ... */
     cell.vocabTextField.tag = indexPath.row * 2
     cell.meaningTextField.tag = cell.vocabTextField.tag + 1
-	/* ... */
+    /* ... */
 }
 
 func textFieldShouldReturn(_ textField: UITextField) -> Bool {
