@@ -1,13 +1,13 @@
 # Vocap
 
-## 기술 스택
+## 🛠️ 기술 스택
 * UIKit
 * MVC
 * Realm
 * SPM
 * Storyboard
 
-## 주요 기능
+## 🧑‍💻 주요 기능
 * 로컬 데이터 저장
 * 카테고리별 단어 관리
 * 배경 화면을 터치하여 단어 생성/수정
@@ -17,7 +17,7 @@
 * 단어 검색
 * 현재 단어/선택된 단어 개수 표시
 
-## 구현 내용
+## 📝 구현 내용
 ### 1. 카테고리 생성/수정/삭제
 ![SimulatorScreenRecording-iPhone11ProMax-2024-05-10at11 52 08-ezgif com-resize](https://github.com/devjuhyun/Vocap/assets/117050638/37d8a243-8815-4066-89b0-3097d1083324)
 
@@ -177,7 +177,7 @@ var isFiltering: Bool {
 * UITableView의 indexPathsForSelectedRows 속성을 이용하여 선택된 단어를 다른 카테고리로 이동
 * 스와이프하여 단어를 삭제하거나 편집 모드에서 여러개의 단어를 선택하여 삭제하는 기능을 구현
 
-## 문제점 개선
+## 🧑‍🔧 문제점 개선
 ### 1. 단어 상세 페이지에서 수정된 단어가 반영되지 않는 이슈
 * DetailViewController에서 단어의 정보를 변경했을때 VocabulariesViewController에 변경된 정보가 바로 반영되지 않는 문제를 발견
 * DetailViewController안에서 UINavigationController를 통해 VocabulariesViewController의 인스턴스에 접근하여 reloadData 메서드를 호출하여 해결
